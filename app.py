@@ -1,7 +1,7 @@
 from flask import Flask,render_template
 from flask import after_this_request
 from flask import *
-from i2p import i2pconverter
+from i2p import i2pconverter, i2pconverterAutoCrop
 import glob, os
 import io
 import string
@@ -30,6 +30,11 @@ def dashboard():
 @app.route('/normalPDF')
 def index():
     return render_template('normal.html')
+
+
+@app.route('/autoCropPDF')
+def autoCropPDF():
+    return render_template('autoCrop.html')
 
     
 # @app.route('/', methods=['POST'])
@@ -70,6 +75,31 @@ def convert():
                 filename = file.filename
                 file.save(os.path.join(UPLOAD_FOLDER, filename))
     i2pconverter(files, UPLOAD_FOLDER)
+    return render_template('converted.html')
+
+
+@app.route('/convertAutoCrop',methods = ['GET', 'POST'])
+def convertAutoCrop():
+    if request.method == 'POST':
+
+        files = request.files.getlist('img')
+        N = 3
+        folderName = ''.join(random.choices(string.ascii_uppercase +
+                             string.digits, k = N))
+        folderName += "-"
+        now = datetime.now()
+        folderName += now.strftime("%d-%m-%Y--%H-%M-%S")
+
+        global UPLOAD_FOLDER 
+        UPLOAD_FOLDER = os.path.join(folderName)
+
+        if not os.path.isdir(UPLOAD_FOLDER):
+            os.mkdir(UPLOAD_FOLDER)
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = file.filename
+                file.save(os.path.join(UPLOAD_FOLDER, filename))
+    i2pconverterAutoCrop(files, UPLOAD_FOLDER)
     return render_template('converted.html')
 
 @app.route('/downloadPDF', methods=['GET'])
@@ -121,7 +151,7 @@ def rm(path):
     
 # schedule.every(5).minutes.do(job)
 
-app.run(debug=True)
+app.run(debug=True, host="0.0.0.0")
 
 # while True:
 #     schedule.run_pending()

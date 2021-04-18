@@ -13,14 +13,14 @@
 
 <body>
 
-<form method="post" class="file-uploader" action="/converted" enctype="multipart/form-data">
+<form method="post" class="file-uploader" action="/convertAutoCrop" enctype="multipart/form-data">
   <div class="file-uploader__message-area">
     <p>Select a file to upload</p>
   </div>
   <div class="file-chooser">
     <input class="file-chooser__input" type="file" name="img" multiple="true" required>
   </div>
-  <input class="file-uploader__submit-button" type="submit" value="Upload">
+  <input class="file-uploader__submit-button" type="submit"  value="Upload">
 </form>
   <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
     <script  src="{{ url_for('static', filename='dist/script.js')}}"></script>
