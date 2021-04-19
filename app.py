@@ -1,7 +1,7 @@
 from flask import Flask,render_template
 from flask import after_this_request
 from flask import *
-from i2p import i2pconverter, i2pconverterAutoCrop
+from i2p import i2pconverter, i2pconverterAutoCrop, pdfMerger
 import glob, os
 import io
 import string
@@ -36,6 +36,10 @@ def index():
 def autoCropPDF():
     return render_template('autoCrop.html')
 
+
+@app.route('/mergePDF')
+def mergePDF():
+    return render_template('mergePDF.html')
     
 # @app.route('/', methods=['POST'])
 # def upload_file():
@@ -102,6 +106,31 @@ def convertAutoCrop():
     i2pconverterAutoCrop(files, UPLOAD_FOLDER)
     return render_template('converted.html')
 
+
+@app.route('/convertMergePDF',methods = ['GET', 'POST'])
+def convertMergePDF():
+    if request.method == 'POST':
+
+        files = request.files.getlist('img')
+        N = 3
+        folderName = ''.join(random.choices(string.ascii_uppercase +
+                             string.digits, k = N))
+        folderName += "-"
+        now = datetime.now()
+        folderName += now.strftime("%d-%m-%Y--%H-%M-%S")
+
+        global UPLOAD_FOLDER 
+        UPLOAD_FOLDER = os.path.join(folderName)
+
+        if not os.path.isdir(UPLOAD_FOLDER):
+            os.mkdir(UPLOAD_FOLDER)
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = file.filename
+                file.save(os.path.join(UPLOAD_FOLDER, filename))
+    pdfMerger(files, UPLOAD_FOLDER)
+    return render_template('converted.html')
+
 @app.route('/downloadPDF', methods=['GET'])
 def downloadPDF():
     filename = UPLOAD_FOLDER+".pdf"
@@ -151,7 +180,7 @@ def rm(path):
     
 # schedule.every(5).minutes.do(job)
 
-app.run(debug=True, host="0.0.0.0")
+app.run(debug=True)
 
 # while True:
 #     schedule.run_pending()

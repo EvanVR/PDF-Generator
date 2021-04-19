@@ -7,6 +7,15 @@ import numpy as np
 import argparse
 import cv2
 import imutils
+from PyPDF2 import PdfFileMerger, PdfFileReader
+
+
+
+def pdfMerger(files, folderName):
+    mergedObject = PdfFileMerger()
+    for pdf in os.listdir(folderName):
+        mergedObject.append(PdfFileReader(open(folderName+"/"+pdf, 'rb')))
+    mergedObject.write(folderName+".pdf")
 
 def i2pconverter(files, folderName):
 
